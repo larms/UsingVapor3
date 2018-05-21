@@ -25,10 +25,10 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let databaseName = Environment.get("DATABASE_DB") ?? "vapor"
     
     // https://github.com/vapor/fluent-postgresql/issues/9
-//    let password = Environment.get("DATABASE_PASSWORD") ?? "password" // 设置密码后会崩溃
+    let password = Environment.get("DATABASE_PASSWORD") ?? "password" // 设置密码后会崩溃
     
     // Configure a PostgreSQL database
-    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName)
+    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName, password: password)
     let psql = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: psql, as: .psql)
     services.register(databases)
