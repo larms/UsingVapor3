@@ -12,43 +12,47 @@ struct AcronymsController: RouteCollection {
         acronymsRoutes.get("search", use: searchHandler)
         acronymsRoutes.get("first", use: getFirstHandler)
         acronymsRoutes.get("sorted", use: sortedHandler)
+        
+        /// /api/acronyms/<acronym.id>/user
+        acronymsRoutes.get(Acronym.parameter, "user", use: getUserHandler)
 
     }
     
     /// 获取所有的Acronym    /api/acronyms        GET
-    func getAllHandler(_ req: Request) throws -> Future<[Acronym]> {
+    private func getAllHandler(_ req: Request) throws -> Future<[Acronym]> {
         return Acronym.query(on: req).all()
     }
     
     /// 创建一个Acronym     /api/acronyms        POST
-    func createHandler(_ req: Request) throws -> Future<Acronym> {
+    private func createHandler(_ req: Request) throws -> Future<Acronym> {
         return try req.content.decode(Acronym.self).flatMap(to: Acronym.self, { acronym in
             return acronym.save(on: req)
         })
     }
     
     //// 获取某个Acronym    /api/acronyms/2      GET
-    func getHandler(_ req: Request) throws -> Future<Acronym> {
+    private func getHandler(_ req: Request) throws -> Future<Acronym> {
         return try req.parameters.next(Acronym.self)
     }
     
     /// 更新数据 /api/acronyms/2     PUT
-    func updateHandler(_ req: Request) throws -> Future<Acronym> {
+    private func updateHandler(_ req: Request) throws -> Future<Acronym> {
         return try flatMap(to: Acronym.self, req.parameters.next(Acronym.self), req.content.decode(Acronym.self), { acronym, updatedAcronym in
             acronym.short = updatedAcronym.short
             acronym.long = updatedAcronym.long
+            acronym.userID = updatedAcronym.userID
             
             return acronym.save(on: req)
         })
     }
     
     /// 删除某个Acronym /api/acronyms/3     DELETE
-    func deleteHandler(_ req: Request) throws -> Future<HTTPStatus> {
+    private func deleteHandler(_ req: Request) throws -> Future<HTTPStatus> {
         return try req.parameters.next(Acronym.self).delete(on: req).transform(to: HTTPStatus.noContent)
     }
     
     /// 搜索结果     /api/acronyms/search?term=WTF
-    func searchHandler(_ req: Request) throws -> Future<[Acronym]> {
+    private func searchHandler(_ req: Request) throws -> Future<[Acronym]> {
         guard let searchTerm = req.query[String.self, at: "term"] else {
             throw Abort(.badRequest)
         }
@@ -64,7 +68,7 @@ struct AcronymsController: RouteCollection {
     }
     
     /// 获取第一个Acronym
-    func getFirstHandler(_ req: Request) throws -> Future<Acronym> {
+    private func getFirstHandler(_ req: Request) throws -> Future<Acronym> {
         return Acronym.query(on: req).first().map(to: Acronym.self, {  acronym in
             guard let acronym = acronym else {
                 throw Abort(.notFound)
@@ -74,7 +78,14 @@ struct AcronymsController: RouteCollection {
     }
     
     /// 升序排序
-    func sortedHandler(_ req: Request) throws -> Future<[Acronym]> {
+    private func sortedHandler(_ req: Request) throws -> Future<[Acronym]> {
         return try Acronym.query(on: req).sort(\.short, QuerySortDirection.ascending).all()
+    }
+    
+    /// 获取与某个Acronym存在关系的User
+    private func getUserHandler(_ req: Request) throws -> Future<User> {
+        return try req.parameters.next(Acronym.self).flatMap(to: User.self, { acronym in
+            try acronym.user.get(on: req)
+        })
     }
 }
