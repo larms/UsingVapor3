@@ -13,9 +13,13 @@ struct AcronymsController: RouteCollection {
         acronymsRoutes.get("first", use: getFirstHandler)
         acronymsRoutes.get("sorted", use: sortedHandler)
         
-        /// /api/acronyms/<acronym.id>/user
+        /// /api/acronyms/<acronym.id>/user         GET
         acronymsRoutes.get(Acronym.parameter, "user", use: getUserHandler)
-
+        
+        /// /api/acronyms/<acronym.id>/categories/<category.id>     POST
+        acronymsRoutes.post(Acronym.parameter, "categories", Category.parameter, use: addCategoriesHendler)
+        /// /api/acronyms/<acronym.id>/categories
+        acronymsRoutes.get(Acronym.parameter, "categories", use: getCategoriesHandler)
     }
     
     /// 获取所有的Acronym    /api/acronyms        GET
@@ -87,5 +91,39 @@ struct AcronymsController: RouteCollection {
         return try req.parameters.next(Acronym.self).flatMap(to: User.self, { acronym in
             try acronym.user.get(on: req)
         })
+    }
+    
+    /// 实际创建两个模型之间的关系时, 需要使用pivot. 创建新的路径处理来建立acronym和category之间的关系
+    ///
+    /// - Parameter req: 请求
+    /// - Returns: Future\<HTTPStatus\>
+    private func addCategoriesHendler(_ req: Request) throws -> Future<HTTPStatus> {
+        // 使用 flatMap(to:_:_:) 从请求的参数中取出 acronym 和 category
+        return try flatMap(to: HTTPStatus.self, req.parameters.next(Acronym.self), req.parameters.next(Category.self)) { acronym, category in
+            
+            // 创建一个新的 AcronymCategoryPivot 对象, 使用 requireID() 以确保 ID 已经设置过, 如果没设置过将抛出错误
+            let pivot = try AcronymCategoryPivot(acronym.requireID(), category.requireID())
+            
+            // 将 pivot 保存到数据库, 然后将结果转换为 201 Created 的响应
+            // 201 Created: 请求已经被实现, 而且有一个新的资源已经依据请求的需要而建立, 且其 URI 已经随 Location 头信息返回. 假如需要的资源无法及时建立的话, 应当返回 '202 Accepted'.
+            /* enum HTTPResponseStatus: HTTP响应状态码
+                2xx
+                case ok
+                case created
+                case accepted
+                case nonAuthoritativeInformation
+                case noContent
+                case resetContent
+                case partialContent
+            */
+            return pivot.save(on: req).transform(to: .created)
+        }
+    }
+    
+    /// 获取categories
+    private func getCategoriesHandler(_ req: Request) throws -> Future<[Category]> {
+        return try req.parameters.next(Acronym.self).flatMap(to: [Category].self) { acronym in
+            try acronym.categories.query(on: req).all()
+        }
     }
 }
