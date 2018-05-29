@@ -22,14 +22,28 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
     let username = Environment.get("DATABASE_USER") ?? "vapor"
-    let databaseName = Environment.get("DATABASE_DB") ?? "vapor"
+    let databaseName: String
+    let databasePort: Int
+    
+    // 设置数据库名称和端口的值
+    if (env == .testing) {  // 在测试环境中(Environment.testing)
+        databaseName = "vapor-test"
+        if let testPort = Environment.get("DATABASE_PORT") {
+            databasePort = Int(testPort) ?? 5433
+        } else {
+            databasePort = 5433
+        }
+    } else {
+        databaseName = Environment.get("DATABASE_DB") ?? "vapor"
+        databasePort = 5432
+    }
     
     // https://github.com/vapor/fluent-postgresql/issues/9
     let password = Environment.get("DATABASE_PASSWORD") ?? "password" // 设置密码后Xcode运行会崩溃, 部署的时候再使用密码
-    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName, password: password)
+    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName, password: password)
     
     // Configure a PostgreSQL database
-//    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, username: username, database: databaseName)
+//    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName)
     
     let psql = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: psql, as: .psql)
