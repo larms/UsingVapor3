@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+#// 用<head>和<body>声明一个基本的HTML 5页面
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        #// 为页面设置标题, 这是显示在浏览器选项卡的标题
+        <title>#(title) | Acronyms</title>
+    </head>
+    <body>
+        #// 用<h1>在页面顶部设置标题为"Acronyms"
+        <h1>Acronyms</h1>
+        #// 使用Leaf的 #if() 来检查是否设置了acronyms变量
+        #if(acronyms) {
+            #// 创建一个表, 它有Short和Long这两列
+            <table>
+                <thead>
+                    <tr>
+                        <th>Short</th>
+                        <th>Long</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    #// 使用Leaf的 #for() 遍历所有 Acronym
+                    #for(acronym in acronyms) {
+                        <tr>
+                            #// 为每一个 Acronym 创建一行, 使用Leaf的 #() 取出变量. 由于所有内容都是可编译的, 可以使用 . 符号来访问Acronym的属性
+                            <td><a href="/acronyms/#(acronym.id)">#(acronym.short)</a></td>
+                            <td>#(acronym.long)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        } else {
+            <h2>没有任何Acronym!</h2>
+        }
+    </body>
+</html>
