@@ -9,8 +9,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     try services.register(LeafProvider())
     
     // 自定义 hostname 和 port
-    let serverConfiure = NIOServerConfig.default(hostname: "192.168.31.170", port: 8080)
-    services.register(serverConfiure)
+//    let serverConfiure = NIOServerConfig.default(hostname: "192.168.31.170", port: 8080)
+//    services.register(serverConfiure)
 
     /// Register routes to the router
     let router = EngineRouter.default()
@@ -45,11 +45,11 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     }
     
     // https://github.com/vapor/fluent-postgresql/issues/9
-//    let password = Environment.get("DATABASE_PASSWORD") ?? "password" // 设置密码后Xcode运行会崩溃, 部署的时候再使用密码
-//    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName, password: password)
+    let password = Environment.get("DATABASE_PASSWORD") ?? "password" // 设置密码后Xcode运行会崩溃, 部署的时候再使用密码
+    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName, password: password)
     
     // Configure a PostgreSQL database
-    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName)
+//    let databaseConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: databasePort, username: username, database: databaseName)
     
     let psql = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: psql, as: .psql)

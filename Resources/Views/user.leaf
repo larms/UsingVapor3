@@ -1,0 +1,28 @@
+#set("content") {
+    <h1>#(user.name)</h1>
+    <h2>#(user.username)</h2>
+
+    #// 用 Leaf 的 #if() 判断此User是否有Acronym
+    #if(count(acronyms) > 0) {
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Short</th>
+                    <th>Long</th>
+                </tr>
+            </thead>
+            <tbody>
+                #// 5
+                #for(acronym in acronyms) {
+                    <tr>
+                        <td><a href="/acronyms/#(acronym.id)">#(acronym.short)</a></td>
+                        <td>#(acronym.long)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    } else {
+        <h2>#(user.name)没有任何Acronym!</h2>
+    }
+}
+#embed("base")

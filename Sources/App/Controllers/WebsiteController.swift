@@ -8,6 +8,9 @@ struct WebsiteController: RouteCollection {
         router.get(use: indexHandler)
         // /acronyms/<acronym.id>
         router.get("acronyms", Acronym.parameter, use: acronymHandler)
+        // /users/<user.id>
+        router.get("users", User.parameter, use: userHandler)
+        router.get("users", use: allUsersHandler)
     }
     
     // 实现 indexHandler(_:), 返回的是 Future<View>
@@ -38,6 +41,27 @@ struct WebsiteController: RouteCollection {
             }
         }
     }
+    
+    private func userHandler(_ req: Request) throws -> Future<View> {
+        // 从请求的参数中提取user并打开结果
+        return try req.parameters.next(User.self).flatMap(to: View.self) { user in
+            // 获取user的acronyms
+            return try user.acronyms.query(on: req).all().flatMap(to: View.self) { acronyms in
+                // 创建UserContext并使用user.leaf模板呈现页面, 这里不用考虑acronyms是否为nil, 因为在user.leaf中已做判断
+                let context = UserContext(title: user.name, user: user, acronyms: acronyms)
+                return try req.view().render("user", context)
+            }
+        }
+    }
+    
+    private func allUsersHandler(_ req: Request) throws -> Future<View> {
+        // 2
+        return User.query(on: req).all().flatMap(to: View.self) { users in
+            // 3
+            let context = AllUsersContext(title: "All Users", users: users)
+            return try req.view().render("allUsers", context)
+        }
+    }
 }
 
 struct IndexContext: Encodable {
@@ -49,4 +73,15 @@ struct AcronymContext: Encodable {
     let title: String
     let acronym: Acronym
     let user: User
+}
+
+struct UserContext: Encodable {
+    let title: String
+    let user: User
+    let acronyms: [Acronym]
+}
+
+struct AllUsersContext: Encodable {
+    let title: String
+    let users: [User]
 }
