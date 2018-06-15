@@ -1,37 +1,37 @@
-<!DOCTYPE html>
-#// 用<head>和<body>声明一个基本的HTML 5页面
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        #// 为页面设置标题, 这是显示在浏览器选项卡的标题
-        <title>#(title) | Acronyms</title>
-    </head>
-    <body>
-        #// 用<h1>在页面顶部设置标题为"Acronyms"
-        <h1>Acronyms</h1>
-        #// 使用Leaf的 #if() 来检查是否设置了acronyms变量
-        #if(acronyms) {
-            #// 创建一个表, 它有Short和Long这两列
-            <table>
-                <thead>
+#// 用 #set("content") {} 中的内容设置 base.leaf 中的 #get(content)
+#set("content") {
+    <img src="/images/logo.png" class="mx-auto d-block" alt="OMV Logo" />
+    #// 用<h1>在页面顶部设置标题为"Acronyms"
+    <h1>Acronyms</h1>
+    #// 使用Leaf的 #if() 来检查是否设置了acronyms变量
+    #if(acronyms) {
+        #// 使用Bootstrap的一些class来创建一个表, 它有Short和Long这两列
+        #// table: 应用标准的Bootstrap表格样式
+        #// table-bordered: 向表格和表格单元格添加边框
+        #// table-hover: 在表格行上启用(鼠标)悬停样式, 更直观表示正在查看哪一行
+        <table class="table table-bordered table-hover">
+            #// 设置表头样式
+            <thead class="thead-light">
+                <tr>
+                    <th>Short</th>
+                    <th>Long</th>
+                </tr>
+            </thead>
+            <tbody>
+                #// 使用Leaf的 #for() 遍历所有 Acronym
+                #for(acronym in acronyms) {
                     <tr>
-                        <th>Short</th>
-                        <th>Long</th>
+                        #// 为每一个 Acronym 创建一行, 使用Leaf的 #() 取出变量. 由于所有内容都是可编译的, 可以使用 . 符号来访问Acronym的属性
+                        <td><a href="/acronyms/#(acronym.id)">#(acronym.short)</a></td>
+                        <td>#(acronym.long)</td>
                     </tr>
-                </thead>
-                <tbody>
-                    #// 使用Leaf的 #for() 遍历所有 Acronym
-                    #for(acronym in acronyms) {
-                        <tr>
-                            #// 为每一个 Acronym 创建一行, 使用Leaf的 #() 取出变量. 由于所有内容都是可编译的, 可以使用 . 符号来访问Acronym的属性
-                            <td><a href="/acronyms/#(acronym.id)">#(acronym.short)</a></td>
-                            <td>#(acronym.long)</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        } else {
-            <h2>没有任何Acronym!</h2>
-        }
-    </body>
-</html>
+                }
+            </tbody>
+        </table>
+    } else {
+        <h2>没有任何Acronym!</h2>
+    }
+}
+
+#// 嵌入 base.leaf 模板以引入通用代码并呈现content的内容
+#embed("base")

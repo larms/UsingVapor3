@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+            
+        <title>#(title) | Acronyms</title>
+    </head>
+    <body>
+        #// 创建导航栏, 使用Bootstrap的一些class来设置导航栏的样式, 允许导航栏在中等大小的屏幕上显示全尺寸(navbar-expand-md), 并应用黑色主题(navbar-dark bg-dark)
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            #// 指定主页的根链接
+            <a class="navbar-brand" href="/">Oh My Vapor</a>
+            #// 创建一个在小屏幕才会显示的按钮, 它将显示和隐藏下一个元素(这里指: <span class="navbar-toggler-icon"></span>)中定义的内容
+            <button class="navbar-toggler" type="button"
+                data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            #// 创建可折叠部分, 小屏幕里会隐藏
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                #// 定义要显示于导航栏的item列表, 设置item的样式替代标准的项目符号列表
+                <ul class="navbar-nav mr-auto">
+                    #// 为主页添加一个链接, 使用Leaf的 #if() 来检查标题, 如果标题为Homepage, 则该item为active状态
+                    <li class="nav-item #if(title == "Homepage"){active}">
+                        <a href="/" class="nav-link">首页</a>
+                </ul>
+            </div>
+        </nav>
+        #// 来自其他 leaf 中 #set("content") {} 的内容替换此处
+        <div class="container mt-3">
+            #get(content)
+        </div>
+    </body>
+</html>

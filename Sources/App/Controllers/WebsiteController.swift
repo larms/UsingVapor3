@@ -14,7 +14,7 @@ struct WebsiteController: RouteCollection {
     private func indexHandler(_ req: Request) throws -> Future<View> {
         // 使用Fluent查询从数据库中获取所有Acronym
         return Acronym.query(on: req).all().flatMap(to: View.self, { acronyms in
-            // 如果有的话，将其添加到 IndexContext 中, 否则设置为nil. Leaf比空数组更容易管理
+            // 如果有的话，将其添加到 IndexContext 中, 否则设置为nil
             let acronymsData = acronyms.isEmpty ? nil : acronyms
             
             // context 的 title 将会替换 index.leaf 中的 #(title), 命名相同才能替换
